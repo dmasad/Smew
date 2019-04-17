@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import random
-from itertools import permutations
+from itertools import permutations, product
 
 class Event(ABC):
     ''' Abstract base for an event which can occur during a model run.
@@ -10,7 +10,7 @@ class Event(ABC):
     what happens when the event is activated with that set of actors.
     '''
     
-    match = [] # TODO: implement tag-wise matching
+    match = None # TODO: implement tag-wise matching
     narrative = [""]
     
     def __new__(cls, *args):
@@ -29,6 +29,9 @@ class Event(ABC):
         self.model = model
         self._actors = args
         self.actors = model.actors # Pass-through to parent
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}{tuple(self._actors)}"
     
     @abstractmethod
     def filter(self, *args):
@@ -59,7 +62,6 @@ class Event(ABC):
         return self.model.actors[name]
     
     def get_related(self, a, b, c=None):
-        # TODO Fill this in
         return self.model.get_related(a, b, c)
     
     def relate(self, a, relation, b, reciprocal=True):
@@ -134,7 +136,8 @@ class SmewModel:
     
     def relate(self, a, relation, b, reciprocal=True):
         relation_tuple = (a.name, relation, b.name)
-        self.relationships.append(relation_tuple)
+        if relation_tuple not in self.relationships:
+            self.relationships.append(relation_tuple)
         if reciprocal:
             self.relate(b, relation, a, False)
     
@@ -158,24 +161,40 @@ class SmewModel:
             that relationship is present.
         '''
         related = []
-        if type(a) is str and isinstance(b, Actor):
+        if isinstance(a, Actor) and isinstance(c, Actor):
+            related = ((a.name, b, c.name) in self.relationships)
+        elif type(a) is str and isinstance(b, Actor):
             for triple in self.relationships:
                 if triple[1] == a and triple[2] == b.name:
                     related.append(self.actors[triple[0]])
         elif isinstance(a, Actor) and type(b) is str:
             for triple in self.relationships:
-                if triple[0] == a.name and triple[2] == b:
+                if triple[0] == a.name and triple[1] == b:
                     related.append(self.actors[triple[2]])
-        elif isinstance(a, Actor) and isinstance(c, Actor):
-            related = ((a.name, b, c.name) in self.relationships)
         return related
-            
+    
+    def get_tagged(self, tag):
+        '''Get all actors with the target tag.
+        '''
+        return [actor for actor in self.all_actors if actor.has_tag(tag)]
+    
+    def get_matching(self, AnEvent):
+        ''' Get all potential sets of actors to run the event filter against.
+        '''
+        if AnEvent.match:
+            tagged_actors = [self.get_tagged(tag) for tag in AnEvent.match]
+            return product(*tagged_actors)
+        else:
+            return permutations(self.all_actors, AnEvent.n_actors())
     
     def get_possible_events(self):
+        ''' Find the list of all valid instantiated events that can happen next.
+        '''
         possible_events = []
-        for Event in self.all_events:
-            for actors in permutations(self.all_actors, Event.n_actors()):
-                event = Event(self, *actors)
+        for AnEvent in self.all_events:
+
+            for actors in self.get_matching(AnEvent):
+                event = AnEvent(self, *actors)
                 if event:
                     possible_events.append(event)
         return possible_events

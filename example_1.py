@@ -12,7 +12,7 @@ class MoreSleepy(Event):
     ]
     
     def filter(self, a):
-        return "person" in a.tags and a.sleepiness < 10
+        return a.has_tag("person") and a.sleepiness < 10
     
     def action(self, a):
         a.sleepiness += 1
@@ -22,7 +22,7 @@ class ReallySleepy(Event):
     narrative = ["{name} is very sleepy."]
     
     def filter(self, a):
-        return "person" in a.tags and a.sleepiness >= 7
+        return a.has_tag("person") and a.sleepiness >= 7
     
     def action(self, a):
         self.narrate(name=a)
@@ -31,7 +31,7 @@ class GetInBed(Event):
     narrative = ["{name} gets into {bed}."]
     
     def filter(self, a, b):
-        return ("person" in a.tags and "bed" in b.tags and
+        return (a.has_tag("person") and "bed" in b.tags and
                 not b.occupied and a.sleepiness > 7)
     
     def action(self, a, b):
@@ -42,7 +42,7 @@ class FallAsleep(Event):
     narrative = ["{name} falls asleep."]
     
     def filter(self, a, b):
-        return "person" in a.tags and "bed" in b.tags and b.occupied
+        return a.has_tag("person") and "bed" in b.tags and b.occupied
     
     def action(self, a, b):
         self.narrate(name=a)
