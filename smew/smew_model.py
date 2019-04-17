@@ -12,23 +12,10 @@ class Event(ABC):
     
     match = None # TODO: implement tag-wise matching
     narrative = [""]
-    
-    def __new__(cls, *args):
-        """Create a new event only if its filter passes.
-        This prevents invalid event objects from being created.
-        """
-        event = object.__new__(cls)
-        event.model = args[0]
-        # Check filter
-        if event.filter(*args[1:]):
-            return event
-        else:
-            return False
         
     def __init__(self, model, *args):
         self.model = model
         self._actors = args
-        self.actors = model.actors # Pass-through to parent
 
     def __repr__(self):
         return f"{self.__class__.__name__}{tuple(self._actors)}"
@@ -183,7 +170,9 @@ class SmewModel:
         '''
         if AnEvent.match:
             tagged_actors = [self.get_tagged(tag) for tag in AnEvent.match]
-            return product(*tagged_actors)
+            return [actors for actors in product(*tagged_actors) 
+                    if len(set(actors))==len(actors)]
+            #return 
         else:
             return permutations(self.all_actors, AnEvent.n_actors())
     
@@ -195,7 +184,7 @@ class SmewModel:
 
             for actors in self.get_matching(AnEvent):
                 event = AnEvent(self, *actors)
-                if event:
+                if event.filter(*actors):
                     possible_events.append(event)
         return possible_events
     

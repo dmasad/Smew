@@ -4,7 +4,7 @@ chris = Actor("Chris", "person", {"sleepiness": 0})
 bed = Actor("king-sized bed", "bed", {"occupied": False})
 
 class MoreSleepy(Event):
-    
+    match = ["person"]
     narrative = [
         "{name} yawns.",
         "{name}'s eyelids droop.",
@@ -12,17 +12,18 @@ class MoreSleepy(Event):
     ]
     
     def filter(self, a):
-        return a.has_tag("person") and a.sleepiness < 10
+        return a.sleepiness < 10
     
     def action(self, a):
         a.sleepiness += 1
         self.narrate(name=a)
 
 class ReallySleepy(Event):
+    match = ["person"]
     narrative = ["{name} is very sleepy."]
     
     def filter(self, a):
-        return a.has_tag("person") and a.sleepiness >= 7
+        return a.sleepiness >= 7
     
     def action(self, a):
         self.narrate(name=a)
