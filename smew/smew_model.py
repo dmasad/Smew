@@ -10,10 +10,16 @@ class Event(ABC):
     what happens when the event is activated with that set of actors.
     '''
     
-    match = None # TODO: implement tag-wise matching
+    match = None 
     narrative = [""]
         
     def __init__(self, model, *args):
+        ''' Create a new (potential) event.
+
+        Args:
+            model: The SmewModel object the event is tied to.
+            *args: One or more Actors involved in the event.
+        '''
         self.model = model
         self._actors = args
 
@@ -22,16 +28,43 @@ class Event(ABC):
     
     @abstractmethod
     def filter(self, *args):
+        ''' 
+        Check whether this event is applicable to the given Actors
+        
+        Args:
+            *args: One or more Actors to check.
+        
+        Returns:
+            Must return either True or False
+        '''
         pass
     
     @abstractmethod
     def action(self, *args):
+        ''' Update the Actors and add to the narration.
+        
+        Args:
+            *args: One or more Actors; assumed to be the same actors that were
+                   checked with filter.
+        '''
         pass
     
     def run(self):
+        ''' Execute the event with the actors passed to it.
+        '''
         self.action(*self._actors)
     
     def narrate(self, **kwargs):
+        ''' Add narration text describing the event.
+
+        By default, choose one of the elements in the `narrative` list, and
+        format using the dictionary provided.
+
+        Args:
+            **kwargs: A dictionary of variable names to use to format the
+            string.  If "_text" is in the dictionary, its value is used verbatim
+            instead.
+        '''
         # TODO: better logging
         if "_text" in kwargs:
             print(kwargs["_text"])
@@ -46,7 +79,19 @@ class Event(ABC):
     # Pass-throughs to parent model
     # ----------------------------------
     def get_actor(self, name):
+        """
+        Get an actor with a given name in the parent model.
+
+        Args:
+            name: The name of an actor to get.
+        
+        Returns:
+            The Actor object in the model with that name.
+        """
         return self.model.actors[name]
+    
+    def get_event(self, name):
+        return self.model.events[name]
     
     def get_related(self, a, b, c=None):
         return self.model.get_related(a, b, c)
