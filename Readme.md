@@ -1,6 +1,6 @@
 # Smew
 
-Smew is a Python framework with a focus on event-driven generative narrative. Smew lets you define `Actors`, and `Events` which can happen to those actors and generate some text associated with them. Smew is heavily inspired by [Sea Duck]() by [Allison Parrish]() (A smew is a kind of sea duck).
+Smew is a Python framework with a focus on event-driven generative narrative. Smew lets you define `Actors`, and `Events` which can happen to those actors and generate some text associated with them. Smew is heavily inspired by [Sea Duck](https://github.com/aparrish/seaduck) by [Allison Parrish](https://www.decontextualize.com/) (A [smew](https://en.wikipedia.org/wiki/Smew) is a kind of sea duck).
 
 ## Basic Example
 
