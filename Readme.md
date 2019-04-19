@@ -37,9 +37,12 @@ As you can see in the example above, a Smew model consists of `Actor`s and `Even
 ### Actors 
 
 An Actor is an entity in a narrative. It can be a person (or group of people), an object, a room, or anything else. Actors are defined by a `name`, `tags`, and `properties`. 
-    * Names are unique identifiers, and are also how the actor will be rendered in text. 
-    * Tags are a string or list of strings; they help determine what events the actor can be involved in.
-    * Properties are any variables that may change over the course of a model run. They are passed to 
+
+* Names are unique identifiers, and are also how the actor will be rendered in text. 
+
+* Tags are a string or list of strings; they help determine what events the actor can be involved in.
+
+* Properties are any variables that may change over the course of a model run. They are passed to 
 Technically, both 
 
 Actors are defined using `smew.Actor`, as in the example above. 
@@ -60,8 +63,9 @@ Events are the heart of the framework. Events are defined as classes (a specific
 
 An `Event` class will generally have two class variables: `match` and `narrative`. 
 
-    * `match` is a list of tags, one for every actor involved in the event. (There must be the same number of tags as arguments to `filter` and `action`)
-    * `narrative` is a list of string templates in [keyword argument](https://docs.python.org/3.6/library/string.html#formatstrings) format.
+* `match` is a list of tags, one for every actor involved in the event. (There must be the same number of tags as arguments to `filter` and `action`)
+
+* `narrative` is a list of string templates in [keyword argument](https://docs.python.org/3.6/library/string.html#formatstrings) format.
 
 The model determines possible events in two steps. First, for all events in the model, it finds all possible combinations of actors with the tags specified in `match` (if no `match` is specified, it checks all possible combinations of actors). Then, it runs the event's `filter` method over each combination; if the filter returns `True`, it is a valid event. Finally, it randomly chooses one valid event with actors to run. 
 
@@ -128,8 +132,9 @@ You can also override the default narration behavior by passing the argument `_t
 
 **TODO:**
 
-    * At the moment, narration is just printed to the screen. It would be nice to track it internally too.
-    * In Sea Duck, narration is done using Tracery grammar; that could be handy here too.
+* At the moment, narration is just printed to the screen. It would be nice to track it internally too.
+
+* In Sea Duck, narration is done using Tracery grammar; that could be handy here too.
 
 
 ### Relationships
@@ -138,9 +143,11 @@ As mentioned above, Smew also lets you track relationships between actors. Relat
 
 You can access relationships using the `get_related` method. You can use it in three different ways:
 
-    * `get_related(a, "loves")` will return a list of all the actors that actor `a` loves, i.e. any actors matching `(a, "loves", *)`.
-    * `get_related("loves", a)` will return a list of all actors that love `a`, i.e. `(*, "loves", a)`.
-    * `get_related(a, "loves", b)` will return `True` if the relationship `(a, "loves", b)` exists, and `False` otherwise.
+* `get_related(a, "loves")` will return a list of all the actors that actor `a` loves, i.e. any actors matching `(a, "loves", *)`.
+
+* `get_related("loves", a)` will return a list of all actors that love `a`, i.e. `(*, "loves", a)`.
+
+* `get_related(a, "loves", b)` will return `True` if the relationship `(a, "loves", b)` exists, and `False` otherwise.
 
 
 
