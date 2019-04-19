@@ -59,6 +59,7 @@ model.generate()
 Events are the heart of the framework. Events are defined as classes (a specific event object is an event associated with one or more specific actors). At a minimun, a `smew.Event` class must implement two methods: `filter`, and `action`. Both take one or more arguments, one for each actor that may be involved in the event. `filter` should returns `True` if a particular set of actors are valid for the event, and otherwise `False`. `action` takes the same arguments, and can be as complicated as you want; this is where the actors are changed, and narration happens.
 
 An `Event` class will generally have two class variables: `match` and `narrative`. 
+
     * `match` is a list of tags, one for every actor involved in the event. (There must be the same number of tags as arguments to `filter` and `action`)
     * `narrative` is a list of string templates in [keyword argument](https://docs.python.org/3.6/library/string.html#formatstrings) format.
 
@@ -126,6 +127,7 @@ Narration is done through the event's `narrate` method. By default, `narrate` ch
 You can also override the default narration behavior by passing the argument `_text` to narrate any arbitrary string, i.e. `self.narrate(_text="Render this string, no matter what self.narrative says")`. 
 
 **TODO:**
+
     * At the moment, narration is just printed to the screen. It would be nice to track it internally too.
     * In Sea Duck, narration is done using Tracery grammar; that could be handy here too.
 
@@ -135,9 +137,12 @@ You can also override the default narration behavior by passing the argument `_t
 As mentioned above, Smew also lets you track relationships between actors. Relationships take the form of triples `(Actor, relationship, Actor)`, where the relationships themselves are just strings. You can add relationships with the `relate(a, relationship, b, reciprocal=True)` method (either on the model or the event). If `reciprocal=True` (the default), *two* relationships are added: `(a, relationship, b)` and `(b, relationship, a)`. If `reciprocal=False`, only the exact relationship is created. You can end a relationship with `unrelate` with the same arguments (again, if `reciprocal=False` it will only end the relationship in one direction). Actors can have any number of relationships, so if at some point you run `relate(a, "loves", b)` and later run `relate(a, "hates", b)` (for the same `a` and `b`), the latter does not overwrite the former; now `a` and `b` both `"love"` and `"hate"` each other.
 
 You can access relationships using the `get_related` method. You can use it in three different ways:
+
     * `get_related(a, "loves")` will return a list of all the actors that actor `a` loves, i.e. any actors matching `(a, "loves", *)`.
     * `get_related("loves", a)` will return a list of all actors that love `a`, i.e. `(*, "loves", a)`.
     * `get_related(a, "loves", b)` will return `True` if the relationship `(a, "loves", b)` exists, and `False` otherwise.
+
+
 
 
 
