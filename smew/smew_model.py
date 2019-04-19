@@ -242,5 +242,14 @@ class SmewModel:
         event = random.choice(possible_events)
         event.run()
     
+    def generate(self, max_steps=100):
+        '''
+        Run the model until it ends (or to the maximum number of steps)
+        '''
+        steps = 0
+        while not self.ended and steps < max_steps:
+            self.advance()
+            steps += 1
+    
 class SmewException(Exception):
     pass
