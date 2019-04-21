@@ -208,12 +208,13 @@ Suggestions and pull requests welcome!
 
 * Add tags to events
 
-* Make (some) events actor-choosable
+* Make (some?) events actor-choosable; allow Actor subclasses to implement their own decision rules.
 
 * Add more options for weighting event probabilities instead of just choosing uniformly at random
 
+### License
 
-
+MIT License. 
 
 
 
