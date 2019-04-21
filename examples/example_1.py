@@ -1,3 +1,9 @@
+'''
+Reimplementation of Sea Duck example 1, by Allison Parrish
+https://github.com/aparrish/seaduck/blob/master/examples/01_basic.js
+'''
+
+
 from smew import Event, Actor, SmewModel
 
 chris = Actor("Chris", "person", {"sleepiness": 0})
@@ -51,5 +57,4 @@ class FallAsleep(Event):
 
 model = SmewModel([chris, bed], 
                   [MoreSleepy, ReallySleepy, GetInBed, FallAsleep])
-while not model.ended:
-    model.advance()
+model.generate()

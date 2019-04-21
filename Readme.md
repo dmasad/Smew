@@ -30,6 +30,20 @@ model.generate()
 
 If you run this, you'll see either `'Hello world!' says Narrator`, or `Narrator says 'Hello world!'`.  
 
+You can see more examples in the `examples/` folder.
+
+## Installation
+
+`Smew` is very much a work in progress and under sporadic development, so installing it in `develop` mode is highly recommended (that means that the source code is kept at its current location, so edits you make there are immediately available next time you `import` it).
+
+Download or clone this repository, open it in your terminal, and run
+
+```
+python setup.py develop
+```
+
+Smew was developed with Python 3.6, and probably requires Python 3.4 or above. 
+
 ## Overview
 
 As you can see in the example above, a Smew model consists of `Actor`s and `Event`s, which are passed to a `SmewModel` object. Actors are the entities in the model; they have `tags` that define what kind of entities they are, and `properties` that define model-specific qualities they have (that may change over the course of a model). Events describe, well, events that can involve those characters. Events also have text templates that define text that can be generated when the event occurs. The model holds the actors and events. Every round of the model, it finds all possible valid combinations of events and actors that may occur, and chooses one of them that actually happens. A model can also store `relations` between actors.

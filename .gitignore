@@ -3,6 +3,8 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.egg-info/
+
 
 # Jupyter Notebook
 .ipynb_checkpoints

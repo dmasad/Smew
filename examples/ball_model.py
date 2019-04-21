@@ -1,13 +1,10 @@
 '''
 Lady X's Ball
 
-There are N characters, all attending a high-society ball. They walk around, 
-dance, fall in and out of love, get jealous, and fight.
-
-Locations: 
-Main hall, salon, gardens
-
+A work in progress about several characters at a vaguely Victorian ball.
+They dance, wander around, fall in and out of love, and become jealous.
 '''
+
 import random
 from smew import Event, Actor, SmewModel
 
