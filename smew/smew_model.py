@@ -91,18 +91,60 @@ class Event(ABC):
         return self.model.actors[name]
     
     def get_event(self, name):
+        '''
+        Get an Event class with the given name.
+        '''
         return self.model.events[name]
     
     def get_related(self, a, b, c=None):
+        '''
+        Get actors related by a relationship.
+        (calls `self.model.get_related`)
+
+        Args:
+            a, b, c=None: either Actor objects or relationship strings
+
+        Returns:
+            If `a` is a relationship and `b` is an actor, return a list
+            of all actors that match (Actor, a, b)
+            
+            If `a` is an actor and `b` is a relationship, return a list
+            of all actors that match (a, b, Actor)
+
+            if `a` and `c` are actors, and `b` is a relationship, checks whether
+            that relationship is present.
+        '''
         return self.model.get_related(a, b, c)
     
     def relate(self, a, relation, b, reciprocal=True):
+        '''
+        Create a relationship between two actors.
+        (calls `self.model.relate`)
+
+        args:
+            a, b: Actor objects to relate
+            relation: a string describing the relationship
+            reciprocal: if True, create two relationships, one
+                        (a, relationship, b) and the other (b, relationship, a)
+        '''
         self.model.relate(a, relation, b, reciprocal)
     
     def unrelate(self, a, relation, b, reciprocal=True):
+        '''
+        Removes a relationship between two actors.
+        (calls `self.model.unrelate`)
+
+        args:
+            a, b: Actor objects to unrelate
+            relation: the relationship string
+            reciprocal: if True, removes the relationship in both directions
+        '''
         self.model.unrelate(a, relation, b, reciprocal)
     
     def end(self):
+        '''
+        End the model run.
+        '''
         self.model.ended = True
 
 
@@ -134,7 +176,7 @@ class Actor:
         return f"Actor({self.name}, {self.tags})"
 
 class SmewModel:
-    ''' A Smew is a kind of seaduck.
+    ''' A generative model that consists of Actors and Events.
     '''
     
     def __init__(self, actors=None, events=None):
@@ -147,26 +189,59 @@ class SmewModel:
             events = []
         self.all_events = events
         self.events = {event.__name__: event for event in self.all_events}
-        self.relationships = [] # List of triples
+        self.relationships = []
         self.ended = False
     
     def add_actor(self, actor):
+        '''
+        Insert a new actor into the model.
+        '''
+
         if actor.name in self.actors:
             raise SmewException(f"An actor named {actor} is already in the model.")
         self.all_actors.append(actor)
         self.actors[actor.name] = actor
     
-    def remove_actor(self, actor):
+    def remove_actor(self, actor, remove_relationships=True):
+        '''
+        Remove an actor from the model.
+
+        args:
+            actor: The Actor object to remove
+            remove_relationships: if True, remove any relationship involving
+                                  the actor as well
+        '''
         self.all_actors.remove(actor)
         del self.actors[actor.name]
+        
+        if remove_relationships:
+            to_delete = []
+            for rel in self.relationships:
+                if rel[0] == actor.name or rel[2] == actor.name:
+                    to_delete.append(rel)
+            for rel in to_delete:
+                self.relationships.remove(rel)
+
     
     def add_event(self, event):
+        '''
+        Insert a new Event into the model.
+        '''
         if event.__name__ in self.events:
             raise SmewException(f"An event named {event.__name__} is already in the model.")
         self.all_events.append(event)
         self.events[event.__name__] = event
     
     def relate(self, a, relation, b, reciprocal=True):
+        '''
+        Create a relationship between two actors.
+
+        args:
+            a, b: Actor objects to relate
+            relation: a string describing the relationship
+            reciprocal: if True, create two relationships, one
+                        (a, relationship, b) and the other (b, relationship, a)
+        '''
         relation_tuple = (a.name, relation, b.name)
         if relation_tuple not in self.relationships:
             self.relationships.append(relation_tuple)
@@ -174,15 +249,27 @@ class SmewModel:
             self.relate(b, relation, a, False)
     
     def unrelate(self, a, relation, b, reciprocal=True):
+        '''
+        Removes a relationship between two actors.
+
+        args:
+            a, b: Actor objects to unrelate
+            relation: the relationship string
+            reciprocal: if True, removes the relationship in both directions
+        '''
         relation_tuple = (a.name, relation, b.name)
         self.relationships.remove(relation_tuple)
         if reciprocal:
             self.unrelate(b, relation, a, False)
     
     def get_related(self, a, b, c=None):
-        ''' Get actors related by a relationship.
-        
+        '''
+        Get actors related by a relationship.
+
         Args:
+            a, b, c=None: either Actor objects or relationship strings
+
+        Returns:
             If `a` is a relationship and `b` is an actor, return a list
             of all actors that match (Actor, a, b)
             
@@ -206,12 +293,14 @@ class SmewModel:
         return related
     
     def get_tagged(self, tag):
-        '''Get all actors with the target tag.
+        '''
+        Return a list of all actors with the given tag.
         '''
         return [actor for actor in self.all_actors if actor.has_tag(tag)]
     
     def get_matching(self, AnEvent):
-        ''' Get all potential sets of actors to run the event filter against.
+        '''
+        Get all potential sets of actors to run the event filter against.
         '''
         if AnEvent.match:
             tagged_actors = [self.get_tagged(tag) for tag in AnEvent.match]

@@ -1,6 +1,6 @@
 # Smew
 
-Smew is a Python framework with a focus on event-driven generative narrative. Smew lets you define `Actors`, and `Events` which can happen to those actors and generate some text associated with them. Smew is heavily inspired by [Sea Duck](https://github.com/aparrish/seaduck) by [Allison Parrish](https://www.decontextualize.com/) (A [smew](https://en.wikipedia.org/wiki/Smew) is a kind of sea duck).
+Smew is a Python framework with a focus on event-driven generative narrative. Smew lets you define `Actors`, and `Events` which can happen to those actors and generate some text associated with them. It is heavily inspired by [Sea Duck](https://github.com/aparrish/seaduck) by [Allison Parrish](https://www.decontextualize.com/) (A [smew](https://en.wikipedia.org/wiki/Smew) is a kind of sea duck).
 
 ## Basic Example
 
@@ -34,7 +34,7 @@ You can see more examples in the `examples/` folder.
 
 ## Installation
 
-`Smew` is very much a work in progress and under sporadic development, so installing it in `develop` mode is highly recommended (that means that the source code is kept at its current location, so edits you make there are immediately available next time you `import` it).
+Smew is very much a work in progress and under sporadic development, so installing it in `develop` mode is highly recommended (that means that the source code is kept at its current location, so edits you make there are immediately available next time you `import` it).
 
 Download or clone this repository, open it in your terminal, and run
 
@@ -144,13 +144,6 @@ Narration is done through the event's `narrate` method. By default, `narrate` ch
 
 You can also override the default narration behavior by passing the argument `_text` to narrate any arbitrary string, i.e. `self.narrate(_text="Render this string, no matter what self.narrative says")`. 
 
-**TODO:**
-
-* At the moment, narration is just printed to the screen. It would be nice to track it internally too.
-
-* In Sea Duck, narration is done using Tracery grammar; that could be handy here too.
-
-
 ### Relationships
 
 As mentioned above, Smew also lets you track relationships between actors. Relationships take the form of triples `(Actor, relationship, Actor)`, where the relationships themselves are just strings. You can add relationships with the `relate(a, relationship, b, reciprocal=True)` method (either on the model or the event). If `reciprocal=True` (the default), *two* relationships are added: `(a, relationship, b)` and `(b, relationship, a)`. If `reciprocal=False`, only the exact relationship is created. You can end a relationship with `unrelate` with the same arguments (again, if `reciprocal=False` it will only end the relationship in one direction). Actors can have any number of relationships, so if at some point you run `relate(a, "loves", b)` and later run `relate(a, "hates", b)` (for the same `a` and `b`), the latter does not overwrite the former; now `a` and `b` both `"love"` and `"hate"` each other.
@@ -162,6 +155,26 @@ You can access relationships using the `get_related` method. You can use it in t
 * `get_related("loves", a)` will return a list of all actors that love `a`, i.e. `(*, "loves", a)`.
 
 * `get_related(a, "loves", b)` will return `True` if the relationship `(a, "loves", b)` exists, and `False` otherwise.
+
+
+### Possible future work
+
+Suggestions and pull requests welcome!
+
+* In Sea Duck, narration is done using Tracery grammar; that could be handy here too.
+
+* At the moment, narration is just printed to the screen. It would be nice to track it internally too.
+
+* Track events alongside narration, including the actors and their current states. This would make it easier to pull out specific narrative strands (i.e. all events involving one actor, all events at a certain location).
+
+* While we're at it, we should track the overall model state.
+
+* Add tags to events
+
+* Make (some) events actor-choosable
+
+* Add more options for weighting event probabilities instead of just choosing uniformly at random
+
 
 
 
