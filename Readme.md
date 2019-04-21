@@ -42,7 +42,9 @@ Download or clone this repository, open it in your terminal, and run
 python setup.py develop
 ```
 
-Smew was developed with Python 3.6, and probably requires Python 3.4 or above. 
+Smew's Tracery rendering relies on [Tracery for Python](https://github.com/aparrish/pytracery), also by Allison Parrish.
+
+Smew was developed with Python 3.6, and probably requires Python 3.5 or above. 
 
 ## Overview
 
@@ -79,7 +81,7 @@ An `Event` class will generally have two class variables: `match` and `narrative
 
 * `match` is a list of tags, one for every actor involved in the event. (There must be the same number of tags as arguments to `filter` and `action`)
 
-* `narrative` is a list of string templates in [keyword argument](https://docs.python.org/3.6/library/string.html#formatstrings) format.
+* `narrative` is a list or dictionary of string templates, and can mix [keyword arguments](https://docs.python.org/3.6/library/string.html#formatstrings) and [Tracery](http://www.crystalcodepalace.com/traceryTut.html) formats.
 
 The model determines possible events in two steps. First, for all events in the model, it finds all possible combinations of actors with the tags specified in `match` (if no `match` is specified, it checks all possible combinations of actors). Then, it runs the event's `filter` method over each combination; if the filter returns `True`, it is a valid event. Finally, it randomly chooses one valid event with actors to run. 
 
@@ -140,9 +142,46 @@ This example also demonstrates relationships, which will be explained in more de
 
 #### Narration
 
-Narration is done through the event's `narrate` method. By default, `narrate` chooses one of the strings in the event's `narrative` property, and formats it using the [keywork formatting style](https://docs.python.org/3.6/library/string.html#formatstrings). This means that you need to explicitly name the variables you're passing to `narrate` to correspond with the strings in `narrative`. In the example above, `self.narrate(a=a, b=b)` works, but `self.narrate(a, b)` would not. By default, actors are rendered as their names; the keyword format allows you to explicity access properties within the curly braces. For example, if you have an actor that looks like `Actor("Neil", ["astronaut"], {"location": "the moon"})`, you could write a narrative string with the form `"{a} is at {a.location}"`.
+Narration is done through the event's `narrate` method. By default, `narrate` chooses one of the strings in the event's `narrative` property, and formats it in two passes: first by parsing any Tracery symbols it has, then using the [keywork formatting style](https://docs.python.org/3.6/library/string.html#formatstrings). This means that you need to explicitly name the variables you're passing to `narrate` to correspond with the strings in `narrative`. In the example above, `self.narrate(a=a, b=b)` works, but `self.narrate(a, b)` would not. By default, actors are rendered as their names; the keyword format allows you to explicity access properties within the curly braces. For example, if you have an actor that looks like `Actor("Neil", ["astronaut"], {"location": "the moon"})`, you could write a narrative string with the form `"{a} is at {a.location}"`.
 
-You can also override the default narration behavior by passing the argument `_text` to narrate any arbitrary string, i.e. `self.narrate(_text="Render this string, no matter what self.narrative says")`. 
+You can write narrative templates in a mix of Tracery and Python curly-braces. For example, the strings `"'Hello {a},' said {b}"`, `"'Hello #a#,' said #b#"` and `"'Hello #a#,' said {b}"` are equally valid, and would all render the same way when called with `self.narrate(a=a, b=b)`. 
+
+Tracery grammar lets you expand symbols (anything between `#` signs) recursively. For example, if you wanted two characters to talk about a random topic, you could write the event's narrative as:
+
+```python
+narrative = {"origin": ["#a# talked to #b# about #topic#."],
+             "topic": ["the weather", "the moon", "#a#'s family", "the game #game#"],
+             "game": ["YAWP", "Gutter", "Ruin Value"]
+            }
+```
+
+Then the symbol `#topic#` would get expanded into one of the strings associated with the key `"topic"` in the narrative dictionary; if the last string is chosen, the symbol `#game#` will be expanded into one of the options associated with `"game"`, and so forth. See the [Tracery documentation](http://tracery.io/) for more details. 
+
+Note that if `narrative` is a dictionary, the default starting point for Tracery rendering is the key `"origin"`. (If `narrative` is a list, it is implicitly assigned to `origin`). You can also override that starting point using the `_origin` argument. For example, 
+
+```python
+# In an Event definition
+narrative = {"happy": 
+                     ["{a} was happy to see {b}", 
+                     "'I'm so happy to see you, {b}!' said {a}"],
+            "not_happy": "'Oh, it's you, {b},' said {a}"
+            }
+
+def action(self, a, b):
+    if self.related(a, "likes", b):
+        self.narrate(_origin="happy", a=a, b=b)
+    else:
+        self.narrate(_origin="not_happy", a=a, b=b)
+
+```
+
+Finally, you can also override the default narration behavior by passing the argument `_text` to narrate any arbitrary string, i.e. `self.narrate(_text="Render this string, no matter what self.narrative says")`. 
+
+#### Advanced note
+
+Each time the `narrate` method is called, Smew builds a new Tracery grammar object for that method run alone. It combines any grammar in the parent model's `grammar` property (which lets you define symbols you may want to use across events); the specific event class's grammar in the `narrative` variable; and any named arguments passed to the method itself. Later grammars override earlier ones; so if your model grammar and Event narrative both have a symbol `"adjectives"`, the event values are the ones used. Since each call generates a new grammar, you can't use Tracery actions / variable assignments (or rather; you can, but they won't persist past this specific narration).
+
+Note that the keyword arguments passed to the `narrate` method are converted into a Tracery grammar; i.e. if you call it with `narrate(a=actor)`, the Tracery associated with that event will have access to a `#a#` symbol. Actor objects are converted to their names for Tracery purposes.
 
 ### Relationships
 
@@ -160,8 +199,6 @@ You can access relationships using the `get_related` method. You can use it in t
 ### Possible future work
 
 Suggestions and pull requests welcome!
-
-* In Sea Duck, narration is done using Tracery grammar; that could be handy here too.
 
 * At the moment, narration is just printed to the screen. It would be nice to track it internally too.
 

@@ -12,9 +12,9 @@ bed = Actor("king-sized bed", "bed", {"occupied": False})
 class MoreSleepy(Event):
     match = ["person"]
     narrative = [
-        "{name} yawns.",
-        "{name}'s eyelids droop.",
-        "{name} says 'I could use a coffee.'"
+        "#name# yawns.",
+        "#name#'s eyelids droop.",
+        "#name# says 'I could use a coffee.'"
     ]
     
     def filter(self, a):
@@ -26,7 +26,7 @@ class MoreSleepy(Event):
 
 class ReallySleepy(Event):
     match = ["person"]
-    narrative = ["{name} is very sleepy."]
+    narrative = ["#name# is very sleepy."]
     
     def filter(self, a):
         return a.sleepiness >= 7
@@ -35,7 +35,7 @@ class ReallySleepy(Event):
         self.narrate(name=a)
 
 class GetInBed(Event):
-    narrative = ["{name} gets into {bed}."]
+    narrative = ["#name# gets into #bed#."]
     
     def filter(self, a, b):
         return (a.has_tag("person") and "bed" in b.tags and
@@ -46,7 +46,7 @@ class GetInBed(Event):
         self.narrate(name=a, bed=b)
 
 class FallAsleep(Event):
-    narrative = ["{name} falls asleep."]
+    narrative = ["#name# falls asleep."]
     
     def filter(self, a, b):
         return a.has_tag("person") and "bed" in b.tags and b.occupied

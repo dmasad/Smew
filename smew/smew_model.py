@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 import random
 from itertools import permutations, product
 
+import tracery
+
 
 class Event(ABC):
     ''' Abstract base for an event which can occur during a model run.
@@ -55,7 +57,7 @@ class Event(ABC):
         '''
         self.action(*self._actors)
 
-    def narrate(self, **kwargs):
+    def narrate(self, _origin='origin', **kwargs):
         ''' Add narration text describing the event.
 
         By default, choose one of the elements in the `narrative` list, and
@@ -66,12 +68,28 @@ class Event(ABC):
                       string.  If "_text" is in the dictionary, its value is
                       used verbatim instead.
         '''
-        # TODO: better logging
+
+        # For every narration, build up a unique dictionary.
+        these_rules = {**self.model.grammar, **self.grammar,
+                       **{k: str(v) for k, v in kwargs.items()}}
+        grammar = tracery.Grammar(these_rules)
+
         if "_text" in kwargs:
-            print(kwargs["_text"])
+            text = grammar.flatten(kwargs["_text"]).format(**kwargs)
         else:
-            text = random.choice(self.narrative)
-            print(text.format(**kwargs))
+            origin = "#{}#".format(_origin)
+            text = grammar.flatten(origin).format(**kwargs)
+        print(text)  # TODO: Better logging
+
+    @property
+    def grammar(self):
+        if type(self.narrative) is list:
+            return {"origin": self.narrative}
+        elif type(self.narrative) is dict and "origin" in self.narrative:
+            return self.narrative
+        else:
+            raise SmewException(("Narrative must be a list, or a dictionary"
+                                 "with an 'origin' key."))
 
     @classmethod
     def n_actors(cls):
@@ -181,7 +199,7 @@ class SmewModel:
     ''' A generative model that consists of Actors and Events.
     '''
 
-    def __init__(self, actors=None, events=None):
+    def __init__(self, actors=None, events=None, grammar=None):
         if not actors:
             actors = []
         self.all_actors = actors
@@ -191,6 +209,11 @@ class SmewModel:
             events = []
         self.all_events = events
         self.events = {event.__name__: event for event in self.all_events}
+
+        if grammar is None:
+            grammar = {}
+        self.grammar = grammar
+
         self.relationships = []
         self.ended = False
 

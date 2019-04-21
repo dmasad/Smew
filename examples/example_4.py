@@ -45,7 +45,7 @@ class Move(Event):
         self.narrate(a=a, room=destination)
     
     narrative = ["After a while, {a} went into the {room}.",
-                "{a} decided to go to {room}."]
+                 "{a} decided to go to {room}."]
     
 class Talk(Event):
     match = ["person", "person"]
@@ -54,17 +54,17 @@ class Talk(Event):
         return a.location == b.location
     
     def action(self, a, b):
-        self.narrate(a=a,b=b, topic=random.choice(self.topics))
+        self.narrate(a=a,b=b)
     
-    narrative = [
-      "{a} and {b} chatted for a bit.",
-      "{a} asked {b} how their day was going.",
-      "{b} told {a} about a dream they had last night.",
-      "{a} and {b} talked for a bit about {topic}."
-    ]
-
-    topics = ["the weather", "the garden", "the phase of the moon",
-      "their family", "the books they've been reading"]
+    narrative = {
+        "origin": ["{a} and {b} chatted for a bit.",
+                   "{a} asked {b} how their day was going.",
+                   "{b} told {a} about a dream they had last night.",
+                   "{a} and {b} talked for a bit about #topics#."
+                  ],
+        "topics":  ["the weather", "the garden", "the phase of the moon",
+                    "{a}'s family", "the books they've been reading"]
+    }
 
 class Work(Event):
     match = ["person"]
