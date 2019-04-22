@@ -1,5 +1,5 @@
 '''
-Lady X's Ball
+Lady Dunderscore's Ball
 
 A work in progress about several characters at a vaguely Victorian ball.
 They dance, wander around, fall in and out of love, and become jealous.
@@ -20,7 +20,7 @@ class GetReady(Event):
     ]
 
     def filter(self, a):
-        return a.location=="home"
+        return a.location == "home"
     
     def action(self, a):
         self.narrate(name=a)
@@ -113,39 +113,32 @@ class DanceWithNPC(Event):
 
 class AskToDance(Event):
     match = ["character", "character"]
-    asks = [
-        "{a} works up the courage and asks {b} for a dance.",
-        "'May I have the next dance?' {a} asks {b}.",
-    ]
-
-    rejections = [
-        "'Perhaps later,' {b} answers coldly."
-    ]
-
-    dances = [
+    narrative = {
+        "asks": [ "{a} works up the courage and asks {b} for a dance.",
+                 "'May I have the next dance?' {a} asks {b}."
+                ],
+        "rejection": ["'Perhaps later,' {b} answers coldly."],
+        "dances": [
         "{a} takes {b}'s hand. As the music plays, they whirl across the floor.",
-        "{a} and {b} step onto the floor and dance together."
-    ]
+        "{a} and {b} step onto the floor and dance together."]
+    }
 
     def filter(self, a, b):
         return (self.get_related(a, "loves", b) and
                 a.location == "main hall" and a.location == b.location)
     
     def action(self, a, b):
-        ask_text = random.choice(self.asks)
-        self.narrate(_text=ask_text.format(a=a, b=b))
+        self.narrate(_origin="asks", a=a, b=b)
         if self.get_related(b, "hates", a):
             # B rejects A outright
-            reject_text = random.choice(self.rejections)
-            self.narrate(_text=reject_text.format(a=a, b=b))
+            self.narrate(_origin="rejection", a=a, b=b)
             return
         elif self.get_related(b, "loves", a):
             # B is also in love with A
             self.narrate(_text="'It would be my pleasure,' {b}'s heart beats faster."
                                .format(b=b))
-        dance_text = random.choice(self.dances).format(a=a, b=b)
-        self.narrate(_text=dance_text)
-        if not self.get_related(b, "loves", a) and  random.random() < 0.5:
+        self.narrate(_origin="dances", a=a, b=b)
+        if not self.get_related(b, "loves", a) and random.random() < 0.5:
             event = FallInLove(self.model, b, a)
             event.run()
 
