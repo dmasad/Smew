@@ -138,9 +138,18 @@ class AskToDance(Event):
             self.narrate(_text="'It would be my pleasure,' {b}'s heart beats faster."
                                .format(b=b))
         self.narrate(_origin="dances", a=a, b=b)
+        # B might fall in love with A
         if not self.get_related(b, "loves", a) and random.random() < 0.5:
             event = FallInLove(self.model, b, a)
             event.run()
+        # If anyone else present loves B, they get jealous of A
+        jealous = [actor for actor in self.model.get_tagged("character")
+                          if actor.location == "main hall" and a not in (a, b)
+                          and self.get_related(actor, "loves", b)]
+        for actor in jealous:
+            event = GetJealous(self.model, actor, a)
+            event.run()
+        
 
 class TalkQuietly(Event):
     match = ["character", "character"]
@@ -163,13 +172,30 @@ class TalkQuietly(Event):
             self.narrate(_text=_text)
             if (self.get_related(b, "loves", crush) and 
                     not self.get_related(crush, "loves", "b")):
-                self.narrate(_text=f"{b}'s eyes narrow with jealousy.'")
-                self.relate(b, "hates", a, False)
+                event = GetJealous(self.model, b, a)
+                event.run()
+
+class GetJealous(Event):
+    match = []
+
+    def filter(self, a, b):
+        return False  # Only callable from other events
+    
+    def action(self, a, b):
+        self.relate(a, "hates", b, False)
+        self.narrate(a=a, b=b)
+    
+    narrative = [
+        "{b} stares at {a}, eyes narrow with jealousy.",
+        "{b} feels a surge of jealousy towards {a}.",
+        "{b} burns with jealousy toward {b}.",
+        "{a} is oblivious to {b}'s jealous rage."
+    ]
 
 ## Set up characters
-#names = ["Arabella", "Brenden", "Caroline", "De Viers", "Emilia", 
-#         "Fitzroy", "Ginny", "Hayes", "Isabelle", "John"]
-names = ["Arabella", "Brenden", "Caroline"]
+names = ["Arabella", "Brenden", "Caroline", "De Viers", "Emilia", 
+         "Fitzroy", "Ginny", "Hayes", "Isabelle", "John"]
+#names = ["Arabella", "Brenden", "Caroline"]
 actors = [Actor(name, "character", {"location": "home"}) for name in names]
 
 # Set up rooms
@@ -183,8 +209,4 @@ model = SmewModel(actors, events)
 
 for _ in range(50):
     model.advance()
-
-
-        
-
-
+    print("")

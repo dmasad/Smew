@@ -85,11 +85,10 @@ class Event(ABC):
     def grammar(self):
         if type(self.narrative) is list:
             return {"origin": self.narrative}
-        elif type(self.narrative) is dict and "origin" in self.narrative:
+        elif type(self.narrative) is dict:
             return self.narrative
         else:
-            raise SmewException(("Narrative must be a list, or a dictionary"
-                                 "with an 'origin' key."))
+            raise SmewException("Narrative must be a list, or a dictionary")
 
     @classmethod
     def n_actors(cls):
