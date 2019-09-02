@@ -56,6 +56,7 @@ class Event(ABC):
         ''' Execute the event with the actors passed to it.
         '''
         self.action(*self._actors)
+        self.model.event_history.append(str(self))
 
     def narrate(self, _origin='origin', **kwargs):
         ''' Add narration text describing the event.
@@ -79,7 +80,9 @@ class Event(ABC):
         else:
             origin = "#{}#".format(_origin)
             text = grammar.flatten(origin).format(**kwargs)
-        print(text)  # TODO: Better logging
+        self.model.text_history.append(text)
+        if self.model.verbose:
+            print(text)  # TODO: Better logging
 
     @property
     def grammar(self):
@@ -198,7 +201,7 @@ class SmewModel:
     ''' A generative model that consists of Actors and Events.
     '''
 
-    def __init__(self, actors=None, events=None, grammar=None):
+    def __init__(self, actors=None, events=None, grammar=None, verbose=True):
         if not actors:
             actors = []
         self.all_actors = actors
@@ -215,6 +218,10 @@ class SmewModel:
 
         self.relationships = []
         self.ended = False
+
+        self.verbose = verbose
+        self.event_history = []
+        self.text_history = []
 
     def add_actor(self, actor):
         '''

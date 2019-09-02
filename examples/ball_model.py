@@ -144,7 +144,7 @@ class AskToDance(Event):
             event.run()
         # If anyone else present loves B, they get jealous of A
         jealous = [actor for actor in self.model.get_tagged("character")
-                          if actor.location == "main hall" and a not in (a, b)
+                          if actor.location == "main hall" and actor not in (a, b)
                           and self.get_related(actor, "loves", b)]
         for actor in jealous:
             event = GetJealous(self.model, actor, a)
@@ -186,10 +186,10 @@ class GetJealous(Event):
         self.narrate(a=a, b=b)
     
     narrative = [
-        "{b} stares at {a}, eyes narrow with jealousy.",
-        "{b} feels a surge of jealousy towards {a}.",
-        "{b} burns with jealousy toward {b}.",
-        "{a} is oblivious to {b}'s jealous rage."
+        "{a} stares at {b}, eyes narrow with jealousy.",
+        "{a} feels a surge of jealousy towards {b}.",
+        "{a} burns with jealousy toward {b}.",
+        "{b} is oblivious to {a}'s jealous rage."
     ]
 
 ## Set up characters
@@ -207,6 +207,8 @@ actors += rooms
 events = Event.__subclasses__()
 model = SmewModel(actors, events)
 
-for _ in range(50):
-    model.advance()
-    print("")
+if __name__ == "__main__":
+    for _ in range(50):
+        model.advance()
+        print("")
+
