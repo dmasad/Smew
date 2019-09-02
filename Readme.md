@@ -200,17 +200,17 @@ You can access relationships using the `get_related` method. You can use it in t
 
 Suggestions and pull requests welcome!
 
-* At the moment, narration is just printed to the screen. It would be nice to track it internally too.
+* At the moment, events and narration are tracked internally in `SmewModel.event_history` and `SmewModel.text_history`, respectively. It would be nice to have more sophisticated logging, including the actors and their current states. This would make it easier to pull out specific narrative strands (i.e. all events involving one actor, all events at a certain location).
 
-* Track events alongside narration, including the actors and their current states. This would make it easier to pull out specific narrative strands (i.e. all events involving one actor, all events at a certain location).
-
-* While we're at it, we should track the overall model state.
+* While we're at it, we should track the overall model state. This would also let us instantiate a model from a given model state.
 
 * Add tags to events
 
 * Make (some?) events actor-choosable; allow Actor subclasses to implement their own decision rules.
 
-* Add more options for weighting event probabilities instead of just choosing uniformly at random
+* Add more options for weighting event probabilities instead of just choosing uniformly at random.
+
+* At the moment, if one event directly triggers another event, it needs to be called explicitly. It might be nice to allow events to directly trigger certain subsequent events (either deterministically or with some probability).
 
 ### License
 
