@@ -178,7 +178,7 @@ class Actor:
             self.tags = tags
         else:
             self.tags = [tags]
-        self.properties = {}
+        self.properties = []
         if properties is not None:
             self.properties = list(properties.keys())
             for key, val in properties.items():
@@ -195,6 +195,17 @@ class Actor:
 
     def __repr__(self):
         return f"Actor({self.name}, {self.tags})"
+    
+    def _to_state(self):
+        return {"name": self.name,
+                "tags": self.tags,
+                "properties": {prop: getattr(self, prop)
+                               for prop in self.properties}}
+    @classmethod
+    def from_state(cls, state):
+        return cls(**state)
+
+
 
 
 class SmewModel:
@@ -371,7 +382,23 @@ class SmewModel:
         while not self.ended and steps < max_steps:
             self.advance()
             steps += 1
+    
+    # State strorage and retrieval
+    def to_state(self):
+        ''' Generates a static dictionary of the current model state.
+        '''
 
+        full_state = {}
+        full_state["Actors"] = [actor._to_state() for actor in self.all_actors]
+        full_state["Relationships"] = list(self.relationships)
+        return full_state
+    
+    @classmethod
+    def from_state(cls, state, events=None, grammar=None, verbose=True):
+        actors = [Actor.from_state(actor) for actor in state["Actors"]]
+        model = cls(actors, events, grammar, verbose)
+        model.relationships = list(state["Relationships"])
+        return model
 
 class SmewException(Exception):
     pass
