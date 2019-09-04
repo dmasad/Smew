@@ -383,6 +383,30 @@ class SmewModel:
             self.advance()
             steps += 1
     
+    def debug_advance(self):
+        ''' Gets a data structure with all events and start and end states.
+        '''
+        debug_data = {}
+        debug_data["starting_state"] = self.to_state()
+
+        if self.ended:
+            debug_data["ended"] = True
+            return debug_data
+
+        possible_events = self.get_possible_events()
+        debug_data["possible_events"] = [str(event) for 
+                                         event in possible_events]
+        if len(possible_events) == 0:
+            self.ended = True
+            debug_data["ended"] = True
+            return debug_data
+        event = random.choice(possible_events)
+        debug_data["chosen_event"] = str(event)
+        event.run()
+        debug_data["event_text"] = self.text_history[-1]
+        debug_data["end_state"] = self.to_state()
+        return debug_data
+    
     # State strorage and retrieval
     def to_state(self):
         ''' Generates a static dictionary of the current model state.
