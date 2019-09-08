@@ -204,7 +204,9 @@ Suggestions and pull requests welcome!
 
 * At the moment, events and narration are tracked internally in `SmewModel.event_history` and `SmewModel.text_history`, respectively. It would be nice to have more sophisticated logging, including the actors and their current states. This would make it easier to pull out specific narrative strands (i.e. all events involving one actor, all events at a certain location).
 
-* While we're at it, we should track the overall model state. This would also let us instantiate a model from a given model state.
+* While we're at it, we should track the overall model state. This would also let us instantiate a model from a given model state. (This is under development in the `model.states` branch).
+
+* Allow narration of the current state of actors, and their relationships. (This is under development in the `actor.narration` branch).
 
 * Add the option to have narration associated with relationship changes
 
