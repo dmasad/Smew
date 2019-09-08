@@ -1,5 +1,6 @@
-# Western Domain
-# Implementing the western domain from Ware, 2014
+# Western model
+# Adapted from the western domain Ware, 2014, p.17
+# https://nil.cs.uno.edu/publications/papers/ware2014thesis.pdf
 
 import random
 from smew import Event, Actor, SmewModel
@@ -49,7 +50,7 @@ class Shoot(Event):
             self.relate(target, "after", shooter)
     
     narrative = {
-        "shoots": ["{shooter} shoots {target}!"],
+        "shoots": ["{shooter} shoots {target}--"],
         "hit": ["{target} is hit!"],
         "miss": ["{shooter} misses!", "The shot goes wide!"]
     }
