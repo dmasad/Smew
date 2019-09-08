@@ -177,6 +177,17 @@ class Actor:
     ''' One actor or other entity in the narrative.
     '''
     def __init__(self, name, tags, properties=None):
+        ''' Creates a new Smew Actor.
+
+        Args:
+            name: String for the actor's name; this will also represent the
+                  actor in the generated narration text. Assumed to be unique.
+            tags: Either a string or list of strings which will be used to match
+                  this Actor to Events.
+            properties: If not None, a dictionary of properties and initial
+                        values for this actor. Properties will be accessible
+                        via the . operator.
+        '''
         self.name = name
         if isinstance(tags, list):
             self.tags = tags
@@ -206,6 +217,16 @@ class SmewModel:
     '''
 
     def __init__(self, actors=None, events=None, grammar=None, verbose=True):
+        ''' Creates a new narrative model object.
+        Args:
+            actors: A list of Actor objects; the initial model actors.
+            events: A list of Event classes
+            grammar: if not None, a Tracery grammar dictionary of symbols which
+                     will be available to all event narrations.
+            verbose: Whether event narration text will be printed as it occurs
+                     (defualts to True)
+
+        '''
         if not actors:
             actors = []
         self.all_actors = actors
