@@ -204,6 +204,8 @@ Suggestions and pull requests welcome!
 
 * While we're at it, we should track the overall model state. This would also let us instantiate a model from a given model state.
 
+* Add the option to have narration associated with relationship changes
+
 * Add tags to events
 
 * Make (some?) events actor-choosable; allow Actor subclasses to implement their own decision rules.
