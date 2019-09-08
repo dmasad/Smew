@@ -176,7 +176,7 @@ class Event(ABC):
 class Actor:
     ''' One actor or other entity in the narrative.
     '''
-    def __init__(self, name, tags, properties=None):
+    def __init__(self, name, tags, properties=None, grammar=None):
         ''' Creates a new Smew Actor.
 
         Args:
@@ -193,11 +193,25 @@ class Actor:
             self.tags = tags
         else:
             self.tags = [tags]
-        self.properties = {}
+        self.properties = []
         if properties is not None:
             self.properties = list(properties.keys())
             for key, val in properties.items():
                 setattr(self, key, val)
+        
+        # Parse out self-narration grammar
+        self._grammar = {"name": [self.name]}
+        if grammar is not None:
+            for prop_name, values in grammar.items():
+                if type(values) is dict:
+                    for prop_val, vals in values.items():
+                        key = f"{prop_name}=={prop_val}"
+                        self._grammar[key] = vals
+                elif type(values) is list:
+                    self._grammar[key] = values
+                elif type(values) is str:
+                    self._grammar[key] = [values]
+        self.grammar = tracery.Grammar(self._grammar)
 
     def has_tag(self, tag):
         return tag in self.tags
@@ -210,6 +224,31 @@ class Actor:
 
     def __repr__(self):
         return f"Actor({self.name}, {self.tags})"
+    
+    def narrate_state(self, include_tags=False):
+        ''' Generate a narration based on the actor's current state
+        '''
+        narration = []
+        if include_tags:
+            # TODO: Incorporate tags into the grammar.
+            text = f"{self.name} is a "
+            for tag in self.tags[:-1]:
+                    text += tag + " and a "
+            text += self.tags[-1] + "."
+            narration.append(text)
+
+        for prop in self.properties:
+            key = f"{prop}=={getattr(self, prop)}"
+            if key in self._grammar:
+                pass  # Expand the grammar as-is
+            elif prop in self._grammar:
+                self.grammar.push_rules("val", getattr(self, prop))
+                key = prop
+            else:
+                continue
+            text = self.grammar.flatten(f"#{key}#")
+            narration.append(text)
+        return " ".join(narration)
 
 
 class SmewModel:
@@ -396,6 +435,18 @@ class SmewModel:
         while not self.ended and steps < max_steps:
             self.advance()
             steps += 1
+    
+    def narrate_actors(self, include_tags=False):
+        for actor in self.all_actors:
+            print(actor.narrate_state(include_tags))
+    
+    def narrate_relationships(self):
+        for a, rel, b in self.relationships:
+            if rel in self.grammar:
+                pass
+                # TODO: Add grammar entries for relationships
+            else:
+                print(f"{a} {rel} {b}")
 
 
 class SmewException(Exception):

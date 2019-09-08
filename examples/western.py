@@ -26,8 +26,8 @@ class Steal(Event):
     
     def action(self, person, item, sheriff):
         owner = self.get_related("has", item)[0]
-        self.unrelate(owner, "has", item)
-        self.relate(person, "has", item)
+        self.unrelate(owner, "has", item, False)
+        self.relate(person, "has", item, False)
         self.relate(sheriff, "after", person, False)
         self.relate(owner, "after", person, False)
         self.narrate(person=person, item=item, owner=owner)
@@ -50,9 +50,9 @@ class Shoot(Event):
             self.relate(target, "after", shooter)
     
     narrative = {
-        "shoots": ["{shooter} shoots {target}--"],
+        "shoots": ["{shooter} shoots {target} --"],
         "hit": ["{target} is hit!"],
-        "miss": ["{shooter} misses!", "The shot goes wide!"]
+        "miss": ["{shooter} misses!", "the shot goes wide!"]
     }
 
 class Heal(Event):
@@ -70,18 +70,30 @@ class Heal(Event):
 
 
 # Set up scene
-timmy = Actor("Timmy", "person", {"sick": True})
-hank = Actor("Hank", "person", {"sick": False})
-carl = Actor("Carl", "person", {"sick": False})
-william = Actor("William", ["person", "sheriff"], {"sick": False})
+character_narration = {"sick": {
+    True: ["#name# is sick."], 
+    False: ["#name# is healthy."]}}
+
+timmy = Actor("Timmy", "person", {"sick": True}, character_narration)
+hank = Actor("Hank", "person", {"sick": False}, character_narration)
+carl = Actor("Carl", "person", {"sick": False}, character_narration)
+william = Actor("William", ["person", "sheriff"], {"sick": False}, 
+                character_narration)
 medicine = Actor("medicine", ["item", "medicine"])
 
 actors = [timmy, hank, carl, william, medicine]
 model = SmewModel(actors, Event.__subclasses__())
-model.relate(carl, "has", medicine)
+model.relate(carl, "has", medicine, False)
 
 if __name__ == "__main__":
+    model.narrate_actors(include_tags=True)
+    model.narrate_relationships()
+    print("")
     model.generate()
+    print("")
+    model.narrate_actors()
+    model.narrate_relationships()
+    print("The end.")
 
     
 
