@@ -218,6 +218,8 @@ Suggestions and pull requests welcome!
 
 * At the moment, if one event directly triggers another event, it needs to be called explicitly. It might be nice to allow events to directly trigger certain subsequent events (either deterministically or with some probability).
 
+* Add actor grammar and narration, to allow actors to describe their current state (and possibly relationships).
+
 ### License
 
 MIT License. 
